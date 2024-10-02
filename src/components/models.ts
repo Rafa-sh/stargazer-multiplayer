@@ -186,13 +186,21 @@ export interface ISGAsset {
   battered?: boolean;
 }
 
-// Character
-export interface ICharacter {
+// Team
+export interface ITeam {
+  name: string;
+  location: string;
+  sharedVows: IProgressTrack[];
+  sharedClocks: IClock[];
+  teammates: ITeammate[];
+}
+
+// Teammate
+export interface ITeammate {
   name: string;
   pronouns: string;
   callsign: string;
   characteristics: string;
-  location: string;
   stats: IStats;
   tracks: ITracks;
   impacts: IImpacts;
@@ -201,10 +209,10 @@ export interface ICharacter {
     bonds: ILegacyTrack;
     discoveries: ILegacyTrack;
   };
-  vows: IProgressTrack[];
-  clocks: IClock[];
   gear: string;
   assets: ISGAsset[];
+  individualVows: IProgressTrack[];
+  individualClocks: IClock[];
 }
 
 // Journal
@@ -318,7 +326,7 @@ export interface IFaction {
 export interface ICampaign {
   id: string;
   name: string;
-  character: ICharacter;
+  team: ITeam;
   progressTracks: IProgressTrack[];
   journal: IJournalEntry[];
   truths: ITruths;

@@ -1,11 +1,12 @@
-import { ICampaign, ICharacter, IJournalEntry, IFaction } from 'src/components/models';
+import { ICampaign, ITeam, ITeammate, IJournalEntry, IFaction } from 'src/components/models';
 
 import { v4 as uuid } from 'uuid';
 import * as oracle from 'src/lib/oracles';
 import { NewSector } from './sector';
-import { NewLegacyTrack, NewProgressTrack } from './tracks';
+import { NewLegacyTrack, NewProgressTrack, NewClock } from './tracks';
 
-export const NewCharacter = (): ICharacter => {
+// Teammate
+export const NewTeammate = (): ITeammate => {
   return {
     name: `${oracle.roll('Starforged/Oracles/Characters/Name/Given_Name')} ${oracle.roll(
       'Starforged/Oracles/Characters/Name/Family_Name'
@@ -13,7 +14,6 @@ export const NewCharacter = (): ICharacter => {
     pronouns: '',
     callsign: oracle.roll('Starforged/Oracles/Characters/Name/Callsign'),
     characteristics: '',
-    location: '',
     stats: {
       edge: 0,
       heart: 0,
@@ -32,7 +32,6 @@ export const NewCharacter = (): ICharacter => {
       bonds: NewLegacyTrack(),
       discoveries: NewLegacyTrack(),
     },
-    clocks: [],
     impacts: {
       Misfortunes: [
         {
@@ -83,9 +82,21 @@ export const NewCharacter = (): ICharacter => {
         },
       ],
     },
-    vows: [NewProgressTrack()],
     gear: '',
     assets: [],
+    individualVows: [NewProgressTrack()], // Initialize individual vows
+    individualClocks: [NewClock()], // Initialize individual clocks
+  };
+};
+
+// Team
+export const NewTeam = (): ITeam => {
+  return {
+    name: 'New Team',
+    location: '',
+    sharedVows: [NewProgressTrack()],
+    sharedClocks: [NewClock()],
+    teammates: [NewTeammate(), NewTeammate()], // Initialize with multiple teammates
   };
 };
 
@@ -114,15 +125,15 @@ export const NewFaction = (): IFaction => {
 };
 
 export const NewCampaign = (): ICampaign => {
-  const character = NewCharacter();
+  const team = NewTeam();
 
   return {
     id: uuid(),
-    name: `New Campaign - ${character.name}`,
-    character: character,
-    truths: {},
+    name: `New Campaign - ${team.teammates[0].name}`,
+    team: team,
     progressTracks: [NewProgressTrack()],
     journal: [NewJournal()],
+    truths: {},
     sectors: [NewSector()],
     factions: [NewFaction()],
   };

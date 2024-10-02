@@ -1,19 +1,38 @@
 <template>
   <q-page padding>
-    <!-- Vows -->
-    <div class="text-h4 sf-header text-center q-mb-sm" id="vows">
-      Vows<q-btn icon="add_circle" flat dense @click="addVow" />
+    <!-- Shared Vows -->
+    <div class="text-h4 sf-header text-center q-mb-sm" id="shared-vows">
+      Shared Vows<q-btn icon="add_circle" flat dense @click="addSharedVow" />
     </div>
     <progress-track
       class="q-mb-md"
-      v-for="(vow, vIndex) in campaign.data.character.vows"
+      v-for="(vow, vIndex) in campaign.data.team.sharedVows"
       :key="vIndex"
-      v-model="campaign.data.character.vows[vIndex]"
+      v-model="campaign.data.team.sharedVows[vIndex]"
     >
       <template v-slot:action v-if="config.data.edit">
-        <q-btn class="col-shrink" icon="delete" flat dense @click="removeVow(vIndex)" />
+        <q-btn class="col-shrink" icon="delete" flat dense @click="removeSharedVow(vIndex)" />
       </template>
     </progress-track>
+
+    <q-separator />
+
+    <!-- Individual Vows -->
+    <div class="text-h4 sf-header text-center q-mt-md q-mb-sm" id="individual-vows">
+      Individual Vows<q-btn icon="add_circle" flat dense @click="addIndividualVow" />
+    </div>
+    <div v-for="(teammate, tIndex) in campaign.data.team.teammates" :key="tIndex">
+      <progress-track
+        class="q-mb-md"
+        v-for="(vow, vIndex) in teammate.individualVows"
+        :key="`${tIndex}-${vIndex}`"
+        v-model="teammate.individualVows[vIndex]"
+      >
+        <template v-slot:action v-if="config.data.edit">
+          <q-btn class="col-shrink" icon="delete" flat dense @click="removeIndividualVow(tIndex, vIndex)" />
+        </template>
+      </progress-track>
+    </div>
 
     <q-separator />
 
@@ -34,11 +53,24 @@
 
     <q-separator />
 
-    <!-- Clocks -->
-    <div class="text-h4 sf-header text-center q-mt-md q-mb-sm" id="clocks">
-      Clocks<q-btn icon="add_circle" flat dense @click="addClock" />
+    <!-- Shared Clocks -->
+    <div class="text-h4 sf-header text-center q-mt-md q-mb-sm" id="shared-clocks">
+      Shared Clocks<q-btn icon="add_circle" flat dense @click="addSharedClock" />
     </div>
     <clocks class="q-mb-sm" all />
+
+    <q-separator />
+
+    <!-- Individual Clocks -->
+    <div class="text-h4 sf-header text-center q-mt-md q-mb-sm" id="individual-clocks">
+      Individual Clocks<q-btn icon="add_circle" flat dense @click="addIndividualClock" />
+    </div>
+    <clocks
+      class="q-mb-sm"
+      v-for="(teammate, tIndex) in campaign.data.team.teammates"
+      :key="tIndex"
+      :clocks="teammate.individualClocks"
+    />
   </q-page>
 </template>
 
@@ -58,27 +90,51 @@ export default defineComponent({
     const campaign = useCampaign();
     const config = useConfig();
 
-    const addVow = () => campaign.data.character.vows.unshift(NewProgressTrack());
-    const removeVow = (index: number) => campaign.data.character.vows.splice(index, 1);
+    // Shared Vows
+    const addSharedVow = () => campaign.data.team.sharedVows.unshift(NewProgressTrack());
+    const removeSharedVow = (index: number) => campaign.data.team.sharedVows.splice(index, 1);
 
+    // Individual Vows
+    const addIndividualVow = () => {
+      campaign.data.team.teammates.forEach((teammate) => {
+        teammate.individualVows.unshift(NewProgressTrack());
+      });
+    };
+    const removeIndividualVow = (teammateIndex: number, vowIndex: number) => {
+      campaign.data.team.teammates[teammateIndex].individualVows.splice(vowIndex, 1);
+    };
+
+    // Progress Tracks
     const addTrack = () => campaign.data.progressTracks.unshift(NewProgressTrack());
     const removeTrack = (index: number) => campaign.data.progressTracks.splice(index, 1);
 
-    const addClock = () => {
-      if (!campaign.data.character.clocks) campaign.data.character.clocks = [];
-      campaign.data.character.clocks.unshift(NewClock());
+    // Shared Clocks
+    const addSharedClock = () => campaign.data.team.sharedClocks.unshift(NewClock());
+    const removeSharedClock = (index: number) => campaign.data.team.sharedClocks.splice(index, 1);
+
+    // Individual Clocks
+    const addIndividualClock = () => {
+      campaign.data.team.teammates.forEach((teammate) => {
+        teammate.individualClocks.unshift(NewClock());
+      });
     };
-    const removeClock = (index: number) => campaign.data.character.clocks.splice(index, 1);
+    const removeIndividualClock = (teammateIndex: number, clockIndex: number) => {
+      campaign.data.team.teammates[teammateIndex].individualClocks.splice(clockIndex, 1);
+    };
 
     return {
       campaign,
       config,
-      addVow,
-      removeVow,
+      addSharedVow,
+      removeSharedVow,
+      addIndividualVow,
+      removeIndividualVow,
       addTrack,
       removeTrack,
-      addClock,
-      removeClock,
+      addSharedClock,
+      removeSharedClock,
+      addIndividualClock,
+      removeIndividualClock,
     };
   },
 });

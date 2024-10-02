@@ -57,7 +57,7 @@ export default defineComponent({
       await skippableSleep(500);
       // await writeLine('::synchronising...');
       //await skippableSleep(500);
-      await writeLine('::welcome ' + campaign.data.character.name);
+      await writeLine('::welcome ' + campaign.data.team.name);
       await sleep(500);
     };
 

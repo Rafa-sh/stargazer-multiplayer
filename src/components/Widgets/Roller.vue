@@ -8,6 +8,19 @@
     class="roller"
   >
     <q-card class="column card-bg">
+      <q-card-section class="row items-center justify-between q-pa-sm text-h6">
+        <q-select
+          class="col"
+          label="Teammate"
+          v-model="selectedTeammate"
+          :options="teammateOptions"
+          dense
+          emit-value
+          map-options
+          @update:modelValue="updateTeammate"
+        />
+      </q-card-section>
+
       <q-card-section class="row items-center justify-between q-pa-sm text-h6" v-if="d100Res > 0">
         <div class="col-shrink"><q-icon :name="`img:${icon.d10()}`" /><q-icon :name="`img:${icon.d10()}`" /></div>
         <div class="col-grow text-center">{{ d100Res }}</div>
@@ -100,7 +113,7 @@
                 class="col-shrink"
                 dense
                 flat
-                :label="campaign.data.character.tracks.momentum.value"
+                :label="selectedTeammate.tracks.momentum.value"
                 icon="mdi-fire"
                 @click="burn"
                 :size="btnSize"
@@ -135,7 +148,7 @@
 <script lang="ts">
 import { defineComponent, computed, ref, watch } from 'vue';
 
-import { ISelectOpt } from '../models';
+import { ISelectOpt, ITeammate } from '../models';
 
 import { useCampaign } from 'src/store/campaign';
 
@@ -175,23 +188,28 @@ export default defineComponent({
     };
 
     const campaign = useCampaign();
+    // selectedTeammate by default is the first teammate of the team of the campaign, which will always exist
+    const selectedTeammate = ref<ITeammate>(campaign.data.team.teammates[0]);
+
+    const teammateOptions = computed(() => campaign.data.team.teammates.map((t) => ({ label: t.name, value: t })));
+
+    const updateTeammate = (value: ITeammate) => {
+      selectedTeammate.value = value;
+      clear();
+    };
+
     const attribute = ref(0);
     const otherAttr = ref(0);
 
     const adds = ref(0);
     const opts = computed((): ISelectOpt[] => {
+      if (!selectedTeammate.value) return [];
       return [
-        { label: 'Edge', value: `edge:${campaign.data.character.stats.edge}` },
-        {
-          label: 'Heart',
-          value: `heart:${campaign.data.character.stats.heart}`,
-        },
-        { label: 'Iron', value: `iron:${campaign.data.character.stats.iron}` },
-        {
-          label: 'Shadow',
-          value: `shadow:${campaign.data.character.stats.shadow}`,
-        },
-        { label: 'Wits', value: `wits:${campaign.data.character.stats.wits}` },
+        { label: 'Edge', value: `edge:${selectedTeammate.value.stats.edge}` },
+        { label: 'Heart', value: `heart:${selectedTeammate.value.stats.heart}` },
+        { label: 'Iron', value: `iron:${selectedTeammate.value.stats.iron}` },
+        { label: 'Shadow', value: `shadow:${selectedTeammate.value.stats.shadow}` },
+        { label: 'Wits', value: `wits:${selectedTeammate.value.stats.wits}` },
         { label: 'Other', value: 'other' },
       ];
     });
@@ -212,23 +230,24 @@ export default defineComponent({
     const roll = () => {
       burnt.value = false;
       if (select.value === 'other') attribute.value = otherAttr.value;
-      data.value = moveRoll(attribute.value, adds.value, campaign.data.character.tracks.momentum.value);
+      data.value = moveRoll(attribute.value, adds.value, selectedTeammate.value?.tracks.momentum.value || 0);
     };
 
     const burnt = ref(false);
     const burn = () => {
-      const m = campaign.data.character.tracks.momentum.value;
-      const r = campaign.data.character.tracks.momentum.reset;
+      if (!selectedTeammate.value) return;
+      const m = selectedTeammate.value.tracks.momentum.value;
+      const r = selectedTeammate.value.tracks.momentum.reset;
       if (data.value.result && data.value.result !== 'Strong Hit' && data.value.action.score < m) {
         data.value.action.score = m;
-        campaign.data.character.tracks.momentum.value = r;
+        selectedTeammate.value.tracks.momentum.value = r;
         data.value = updateResults(data.value);
         burnt.value = true;
       }
     };
 
     const adIcon = computed(() => {
-      const m = campaign.data.character.tracks.momentum.value;
+      const m = selectedTeammate.value?.tracks.momentum.value || 0;
       return m < 0 && Math.abs(m) === data.value.action.die
         ? `mdi-dice-${data.value.action.die}-outline`
         : `mdi-dice-${data.value.action.die}`;
@@ -250,8 +269,8 @@ export default defineComponent({
 
       // Account for negative momentum
       if (
-        campaign.data.character.tracks.momentum.value < 0 &&
-        Math.abs(campaign.data.character.tracks.momentum.value) === Math.abs(data.value.action.die)
+        selectedTeammate.value?.tracks.momentum.value < 0 &&
+        Math.abs(selectedTeammate.value.tracks.momentum.value) === Math.abs(data.value.action.die)
       ) {
         data.value.action.score -= data.value.action.die;
       }
@@ -271,13 +290,19 @@ export default defineComponent({
     };
 
     const mInc = () => {
-      if (campaign.data.character.tracks.momentum.value < campaign.data.character.tracks.momentum.max)
-        campaign.data.character.tracks.momentum.value++;
+      if (
+        selectedTeammate.value &&
+        selectedTeammate.value.tracks.momentum.value < selectedTeammate.value.tracks.momentum.max
+      )
+        selectedTeammate.value.tracks.momentum.value++;
     };
 
     const mDec = () => {
-      if (campaign.data.character.tracks.momentum.value > campaign.data.character.tracks.momentum.min)
-        campaign.data.character.tracks.momentum.value--;
+      if (
+        selectedTeammate.value &&
+        selectedTeammate.value.tracks.momentum.value > selectedTeammate.value.tracks.momentum.min
+      )
+        selectedTeammate.value.tracks.momentum.value--;
     };
 
     return {
@@ -285,6 +310,10 @@ export default defineComponent({
       close,
       campaign,
       icon,
+
+      selectedTeammate,
+      teammateOptions,
+      updateTeammate,
 
       attribute,
       otherAttr,

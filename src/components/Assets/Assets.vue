@@ -74,15 +74,17 @@
                 <div class="col-10 q-ml-xs asset-text" v-html="a.text" />
               </div>
 
-              <div class="row full-width justify-between">
-                <q-btn
-                  v-if="config.data.edit && ca.id"
-                  class="q-ma-md"
-                  outline
-                  label="Delete"
-                  @click="customAssets.delete(ca)"
+              <div class="row q-gutter-sm q-mb-sm items-center">
+                <q-select
+                  class="col"
+                  label="Teammate"
+                  v-model="selectedTeammate"
+                  :options="teammateOptions"
+                  dense
+                  emit-value
+                  map-options
                 />
-                <q-btn class="q-ma-md" outline label="Add" @click="addAsset(ca.id || ca.title)" />
+                <q-btn class="col-shrink" outline label="Add Asset" @click="addAsset(ca.id || ca.title)" />
               </div>
             </div>
             <div v-else>
@@ -99,7 +101,7 @@
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
 
-import { ISGAsset } from 'src/components/models';
+import { ISGAsset, ITeam, ITeammate } from 'src/components/models';
 
 import { useConfig } from 'src/store/config';
 import { useAssets } from 'src/store/assets';
@@ -184,9 +186,13 @@ export default defineComponent({
       ca.value = cards.value[id];
     };
 
+    const selectedTeammate = ref<ITeammate | null>(null);
+
     const addAsset = (id: string) => {
       const dataCopy = JSON.parse(JSON.stringify(cards.value[id])) as ISGAsset;
-      campaign.data.character.assets.push(dataCopy);
+      if (selectedTeammate.value) {
+        selectedTeammate.value.assets.push(dataCopy);
+      }
     };
 
     const showEditor = ref(false);
@@ -197,6 +203,8 @@ export default defineComponent({
         starforged['Asset Types'].find((t) => t.Name === 'Path')?.Assets.find((a) => a.Name === 'Ace') as IAsset
       )
     );
+
+    const teammateOptions = computed(() => campaign.data.team.teammates.map((t) => ({ label: t.name, value: t })));
 
     return {
       config,
@@ -214,6 +222,8 @@ export default defineComponent({
       ca,
 
       icon,
+      selectedTeammate,
+      teammateOptions,
     };
   },
 });

@@ -38,13 +38,7 @@
             v-model="campaign.data.sectors[config.data.sector].cells[selectedID].stat"
             :options="Object.values(ECellStatus)"
           />
-          <q-btn
-            class="col-shrink"
-            dense
-            outline
-            label="Go here"
-            @click="campaign.data.character.location = selectedID"
-          />
+          <q-btn class="col-shrink" dense outline label="Go here" @click="campaign.data.team.location = selectedID" />
         </div>
       </q-card-section>
 
@@ -111,7 +105,7 @@ export default defineComponent({
         .size('100%', '100%');
       console.log('initial map render');
       fullRender();
-      renderPlayer();
+      renderTeam();
     });
 
     /* MAP RENDER FUNCTIONS */
@@ -135,7 +129,7 @@ export default defineComponent({
       renderIcons();
       renderLabels();
       renderSearch();
-      // renderPlayer();
+      // renderteam();
     };
 
     const renderFills = () => {
@@ -293,7 +287,10 @@ export default defineComponent({
       //clear existing search labels
       map.find('.search-label').forEach((i) => i.remove());
 
-      if (!(props.searchResults != {} && props.searchResults[config.data.sector])) return;
+      // Check if searchResults is not empty and has results for the current sector
+      // ! Wait, this isn't even realted to multiplayer, was this a previious "not best practice"?
+      // ! I don't even remember what I was trying here
+      if (Object.keys(props.searchResults).length === 0 || !props.searchResults[config.data.sector]) return;
 
       // Add search results
       Object.keys(props.searchResults[config.data.sector]).forEach((id) => {
@@ -323,12 +320,12 @@ export default defineComponent({
       });
     };
 
-    const renderPlayer = () => {
-      if (campaign.data.character.location != '') {
+    const renderTeam = () => {
+      if (campaign.data.team.location != '') {
         // Clear existing player ship
         map.find('.ship').forEach((i) => i.remove());
 
-        const { x, y } = getXY(campaign.data.character.location);
+        const { x, y } = getXY(campaign.data.team.location);
 
         SVG()
           .image(icon.player().replace('img:', ''))
@@ -392,8 +389,8 @@ export default defineComponent({
     );
 
     watch(
-      () => campaign.data.character.location,
-      () => renderPlayer()
+      () => campaign.data.team.location,
+      () => renderTeam()
     );
 
     watch(

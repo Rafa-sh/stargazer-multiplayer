@@ -23,7 +23,7 @@
       <q-tabs align="center" dense :class="{ crt: crt }">
         <q-route-tab to="/campaign" label="Campaign" />
         <q-route-tab v-if="config.data.journalTab" to="/journal" label="Journal" />
-        <q-route-tab to="/" :label="campaign.data.character.name" />
+        <q-route-tab to="/" :label="campaign.data.team.name" />
         <q-route-tab to="/challenges" label="Challenges" />
         <q-route-tab to="/sector" label="Sector" />
       </q-tabs>

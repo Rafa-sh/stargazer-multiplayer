@@ -12,7 +12,7 @@ import {
   IStarship,
   IVault,
 } from 'components/models';
-import { NewCampaign } from 'src/lib/campaign';
+import { NewCampaign, NewTeam } from 'src/lib/campaign';
 import { useConfig } from './config';
 import { exportFile } from 'quasar';
 import { db } from 'src/lib/db';
@@ -134,6 +134,13 @@ export const useCampaign = defineStore({
         await this.new();
         await config.updateIndex();
       }
+
+      // Debugging log to check if team is initialized
+      if (!this.data.team) {
+        console.log('Team is not initialized in populateStore, initializing now...');
+        this.data.team = NewTeam();
+      }
+      console.log('Team after populateStore:', this.data.team);
     },
 
     async new() {
@@ -193,6 +200,13 @@ export const useCampaign = defineStore({
           // we've entered bad state, rectify
           await this.loadFirst();
         }
+
+        // Debugging log to check if team is initialized after loading
+        if (!this.data.team) {
+          console.log('Team is not initialized after loading, initializing now...');
+          this.data.team = NewTeam();
+        }
+        console.log('Team after loading:', this.data.team);
       } catch (err) {
         console.log(err);
       }

@@ -5,6 +5,17 @@
       <slot name="action" class="col-shrink" />
     </div>
 
+    <div class="row q-gutter-sm">
+      <q-toggle v-model="localIsIndividual" label="Individual Vow" @update:modelValue="updateVowType" />
+      <q-select
+        v-if="localIsIndividual"
+        v-model="selectedTeammate"
+        :options="teammateOptions"
+        label="Select Teammate"
+        @update:modelValue="updateTeammate"
+      />
+    </div>
+
     <div v-if="rollData.result" class="col-12 text-h6">
       <div class="row text-center items-center justify-evenly">
         <div :class="rollData.action.color">
@@ -64,9 +75,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, ref, watch, computed } from 'vue';
-
-import { IProgressTrack } from 'src/components/models';
-
+import { IProgressTrack, ITeammate } from 'src/components/models';
 import { useQuasar } from 'quasar';
 import { useCampaign } from 'src/store/campaign';
 
@@ -97,23 +106,45 @@ export default defineComponent({
       type: Number,
       default: 0,
     },
+    isIndividual: {
+      type: Boolean,
+      default: false,
+    },
   },
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'update:isIndividual'],
   setup(props, ctx) {
     const data = ref(props.modelValue);
+    const localIsIndividual = ref(props.isIndividual);
+
     watch(
       () => props.modelValue,
       () => (data.value = props.modelValue),
       { deep: true }
     );
 
+    watch(
+      () => props.isIndividual,
+      (newVal) => (localIsIndividual.value = newVal)
+    );
+
     const updateValue = () => ctx.emit('update:modelValue', data.value);
 
-    // Set difficulty externally
-    if (props.setDifficulty !== 0) {
-      // eslint-disable-next-line vue/no-setup-props-destructure
-      data.value.difficulty = props.setDifficulty;
-    }
+    const updateVowType = (value: boolean) => {
+      localIsIndividual.value = value;
+      ctx.emit('update:isIndividual', value);
+      if (!value) {
+        selectedTeammate.value = null;
+      }
+    };
+
+    const updateTeammate = (value: ITeammate) => {
+      selectedTeammate.value = value;
+    };
+
+    // Set difficulty externally using a computed property
+    const difficulty = computed(() => {
+      return props.setDifficulty !== 0 ? props.setDifficulty : data.value.difficulty;
+    });
 
     const boxIncrement = (index: number) => {
       if (data.value.boxes[index] === 4) {
@@ -133,7 +164,7 @@ export default defineComponent({
     ];
 
     const mark = () => {
-      let ticks = Difficulty[data.value.difficulty].mark * 4;
+      let ticks = Difficulty[difficulty.value].mark * 4;
 
       void (async () => {
         for (let i = 0; i < data.value.boxes.length; i++) {
@@ -185,7 +216,10 @@ export default defineComponent({
       const out: number[] = [];
       if (!data.value.clocks) return out;
       data.value.clocks.forEach((id) => {
-        campaign.data.character.clocks.forEach((c, i) => {
+        const clocks = props.isIndividual
+          ? campaign.data.team.teammates.flatMap((t) => t.individualClocks)
+          : campaign.data.team.sharedClocks;
+        clocks.forEach((c, i) => {
           if (c.id === id) {
             out.push(i);
           }
@@ -198,6 +232,9 @@ export default defineComponent({
     if (data.value.notes === undefined) {
       data.value.notes = '';
     }
+
+    const selectedTeammate = ref<ITeammate | null>(null);
+    const teammateOptions = computed(() => campaign.data.team.teammates.map((t) => ({ label: t.name, value: t })));
 
     return {
       data,
@@ -218,6 +255,12 @@ export default defineComponent({
       showNotes,
       notesIcon,
       campaign,
+
+      localIsIndividual,
+      selectedTeammate,
+      teammateOptions,
+      updateVowType,
+      updateTeammate,
     };
   },
 });
