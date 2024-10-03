@@ -149,6 +149,7 @@ export interface IProgressTrack {
   boxes: number[];
   clocks: string[];
   notes?: string;
+  isVow?: boolean;
 }
 
 export interface ILegacyBox {

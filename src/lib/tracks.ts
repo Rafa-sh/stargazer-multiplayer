@@ -35,6 +35,7 @@ export const NewProgressTrack = (name?: string): IProgressTrack => {
     difficulty: 1,
     boxes: Array(10).fill(0) as number[],
     clocks: [],
+    isVow: true,
   };
 };
 

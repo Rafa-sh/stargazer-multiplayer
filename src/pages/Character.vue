@@ -6,14 +6,85 @@
       <q-input class="col-grow" label="Team Name" v-model="campaign.data.team.name" dense />
       <q-input class="col-4" label="Location" v-model="campaign.data.team.location" dense />
     </div>
+    <q-separator />
+
+    <!-- Stats -->
+    <i-input class="q-mt-md q-mb-md" label="Shared Gear &amp; Notes" autogrow />
 
     <q-separator />
 
     <!-- Teammates -->
-    <div v-for="(teammate, tIndex) in campaign.data.team.teammates" :key="tIndex">
-      <div class="text-h4 sf-header text-center q-mt-md q-mb-sm" :id="`teammate-${tIndex}`">
-        {{ teammate.name }}
-      </div>
+    <q-expansion-item
+      v-for="(teammate, tIndex) in campaign.data.team.teammates"
+      :key="tIndex"
+      :label="teammate.name"
+      expand-separator
+      dense
+    >
+      <template v-slot:header>
+        <div class="row full-width items-center justify-between">
+          <!-- Group 1: Callsign/Name -->
+          <div class="col-auto group q-pa-md">
+            <div class="row items-center">
+              <div class="col text-left">{{ teammate.callsign || teammate.name }}</div>
+            </div>
+          </div>
+
+          <!-- Centered Groups 2 and 3 with Separation (hidden on small screens) -->
+          <div v-if="$q.screen.gt.xs" class="row items-center justify-center q-pa-md">
+            <!-- Group 2: Momentum, Health, Spirit, Supply -->
+            <div class="col-auto group q-pa-md">
+              <div class="row items-center justify-center">
+                <div class="col text-center q-mr-md">
+                  <q-icon name="mdi-fire" /> {{ teammate.tracks.momentum.value }}
+                </div>
+                <div class="col text-center q-mr-md">
+                  <q-icon name="mdi-heart" /> {{ teammate.tracks.health.value }}
+                </div>
+                <div class="col text-center q-mr-md">
+                  <q-icon name="mdi-emoticon-happy" /> {{ teammate.tracks.spirit.value }}
+                </div>
+                <div class="col text-center">
+                  <q-icon name="mdi-package-variant" /> {{ teammate.tracks.supply.value }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Separation -->
+            <div class="q-mx-md"></div>
+
+            <!-- Group 3: Stats -->
+            <div class="col-auto group q-pa-md">
+              <div class="row items-center justify-center">
+                <div class="col text-center q-mr-md"><q-icon name="mdi-sword" /> {{ teammate.stats.edge }}</div>
+                <div class="col text-center q-mr-md"><q-icon name="mdi-heart-pulse" /> {{ teammate.stats.heart }}</div>
+                <div class="col text-center q-mr-md"><q-icon name="mdi-shield" /> {{ teammate.stats.iron }}</div>
+                <div class="col text-center q-mr-md"><q-icon name="mdi-eye" /> {{ teammate.stats.shadow }}</div>
+                <div class="col text-center"><q-icon name="mdi-brain" /> {{ teammate.stats.wits }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Group 4: Delete Button -->
+          <div class="col-auto group q-pa-md">
+            <div class="row items-center justify-end">
+              <q-btn
+                v-if="config.data.edit"
+                class="col-shrink"
+                icon="delete"
+                flat
+                dense
+                @click="confirmDeleteTeammate(tIndex)"
+              >
+                <q-tooltip>Delete teammate</q-tooltip>
+              </q-btn>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Expanded Content -->
+      <div class="text-h4 sf-header text-center q-mt-md q-mb-sm">{{ teammate.name }}</div>
 
       <!-- Name, pronouns, callsign etc -->
       <div class="row full-width items-center">
@@ -195,13 +266,34 @@
       </div>
 
       <assets v-model="showAssetSelect" />
+    </q-expansion-item>
+
+    <!-- Add Teammate Button -->
+    <div class="row justify-center q-mt-md">
+      <q-btn icon="add_circle" label="Add Teammate" @click="addTeammate" />
     </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <q-dialog v-model="showDeleteConfirm">
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-icon name="warning" color="warning" />
+          <span class="q-ml-sm">Are you sure you want to delete this teammate?</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="primary" v-close-popup />
+          <q-btn flat label="Delete" color="negative" @click="deleteTeammate" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { ITeammate } from 'src/components/models'; // Adjust the path as necessary
+import { ITeammate } from 'src/components/models';
+import { NewTeammate } from 'src/lib/campaign';
 
 import { useCampaign } from 'src/store/campaign';
 import { useConfig } from 'src/store/config';
@@ -257,16 +349,38 @@ export default defineComponent({
 
     const config = useConfig();
 
+    const showDeleteConfirm = ref(false);
+    const teammateToDelete = ref<number | null>(null);
+
+    const addTeammate = () => {
+      campaign.data.team.teammates.push(NewTeammate());
+    };
+
+    const confirmDeleteTeammate = (index: number) => {
+      teammateToDelete.value = index;
+      showDeleteConfirm.value = true;
+    };
+
+    const deleteTeammate = () => {
+      if (teammateToDelete.value !== null) {
+        campaign.data.team.teammates.splice(teammateToDelete.value, 1);
+        teammateToDelete.value = null;
+        showDeleteConfirm.value = false;
+      }
+    };
+
     return {
       campaign,
-
-      removeAsset,
-      showAssetSelect,
-
-      markImpact,
-
-      burnMomentum,
       config,
+      showAssetSelect,
+      showDeleteConfirm,
+      teammateToDelete,
+      addTeammate,
+      confirmDeleteTeammate,
+      deleteTeammate,
+      removeAsset,
+      markImpact,
+      burnMomentum,
     };
   },
 });

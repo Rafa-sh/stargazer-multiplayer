@@ -34,12 +34,9 @@
 
 <script lang="ts">
 import { defineComponent, watch, computed, ref, PropType } from 'vue';
-
 import { IClock, EAtO } from '../models';
-
 import { useCampaign } from 'src/store/campaign';
 import { useConfig } from 'src/store/config';
-
 import { RollClock } from 'src/lib/tracks';
 
 export default defineComponent({
@@ -52,30 +49,30 @@ export default defineComponent({
   },
   emits: ['update:modelValue', 'delete'],
   setup(props, { emit }) {
-    const data = ref(props.modelValue);
+    const data = ref({ ...props.modelValue });
     const config = useConfig();
     const campaign = useCampaign();
 
     watch(
       () => props.modelValue,
-      () => (data.value = props.modelValue),
+      (newValue) => {
+        data.value = { ...newValue };
+      },
       { deep: true }
     );
+
     watch(
       () => data.value,
-      () => {
-        if (data.value.filled === data.value.segments && !data.value.complete) {
-          data.value.complete = true;
-          campaign.appendToJournal(
-            0,
-            `<div class="note clock"><b>[Clock completed: ${data.value.name}]</b>&nbsp;</div>`
-          );
+      (newValue) => {
+        if (newValue.filled === newValue.segments && !newValue.complete) {
+          newValue.complete = true;
+          campaign.appendToJournal(0, `<div class="note clock"><b>[Clock completed: ${newValue.name}]</b>&nbsp;</div>`);
         }
-        if (data.value.filled > data.value.segments) {
-          data.value.filled = 0;
-          data.value.complete = false;
+        if (newValue.filled > newValue.segments) {
+          newValue.filled = 0;
+          newValue.complete = false;
         }
-        emit('update:modelValue', data.value);
+        emit('update:modelValue', newValue);
       },
       { deep: true }
     );
@@ -89,6 +86,7 @@ export default defineComponent({
         data.value = RollClock(data.value);
       }
     };
+
     return {
       config,
       data,

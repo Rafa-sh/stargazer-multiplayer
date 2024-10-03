@@ -1,39 +1,39 @@
 <template>
   <div>
-    <div
-      class="row q-gutter-sm q-mb-sm items-center justify-center"
-      v-if="all && campaign.data.team.sharedClocks.length > 0"
-    >
+    <div class="row q-gutter-sm q-mb-sm items-center justify-center" v-if="all && clocks.length > 0">
       <q-btn label="Begin a Session" flat dense @click="rollAllClocks" />
     </div>
 
-    <div class="row q-gutter-sm q-mb-sm items-center">
-      <q-toggle v-model="isIndividual" label="Individual Clocks" @update:modelValue="updateClockType" />
-      <q-select
-        v-if="isIndividual"
-        class="col"
-        label="Teammate"
-        v-model="selectedTeammate"
-        :options="teammateOptions"
+    <div class="row q-gutter-sm q-mb-sm items-center justify-center">
+      <q-btn
+        class="col-shrink"
+        :label="`ADD ${isShared ? 'SHARED' : ownerName.toUpperCase()} CLOCK`"
+        flat
         dense
-        emit-value
-        map-options
-        @update:modelValue="updateTeammate"
-      />
-    </div>
-
-    <div class="row q-gutter-sm q-mb-sm items-center" v-if="!all">
-      <q-select class="col" label="Clock" v-model="clockSelect" :options="clockOpts" dense emit-value map-options />
-      <q-btn class="col-shrink" icon="remove_circle" flat dense @click="unlinkClock(clockSelect)" />
-      <q-btn class="col-shrink" icon="add_circle" flat dense @click="addClock(clockSelect)" />
+        @click="addClock"
+      >
+        <q-icon name="add_circle" class="q-ml-sm" />
+      </q-btn>
     </div>
 
     <div class="row q-gutter-sm justify-evenly" v-if="!all">
-      <clock v-for="index in clockIndices" :key="index" v-model="clocks[index]" @delete="removeClock(index)" />
+      <clock
+        v-for="index in clockIndices"
+        :key="index"
+        :modelValue="clocks[index]"
+        @update:modelValue="updateClock(index, $event)"
+        @delete="removeClock(index)"
+      />
     </div>
 
     <div class="row q-gutter-sm justify-evenly" v-else>
-      <clock v-for="(clock, index) in clocks" :key="index" v-model="clocks[index]" @delete="removeClock(index)" />
+      <clock
+        v-for="(clock, index) in clocks"
+        :key="index"
+        :modelValue="clock"
+        @update:modelValue="updateClock(index, $event)"
+        @delete="removeClock(index)"
+      />
     </div>
   </div>
 </template>
@@ -41,8 +41,8 @@
 <script lang="ts">
 import { NewClock, RollClock } from 'src/lib/tracks';
 import { useCampaign } from 'src/store/campaign';
-import { defineComponent, PropType, ref, computed, watch } from 'vue';
-import { EAtO, ISelectOpt, IClock, ITeammate } from '../models';
+import { defineComponent, PropType, computed, watch } from 'vue';
+import { EAtO, IClock } from '../models';
 
 import Clock from 'src/components/Tracks/Clock.vue';
 
@@ -59,44 +59,32 @@ export default defineComponent({
         return [];
       },
     },
+    ownerName: {
+      type: String,
+      default: 'Team',
+    },
+    isShared: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
-    const idList = computed({
-      get() {
-        return props.modelValue;
-      },
-      set(value: string[]) {
-        emit('update:modelValue', value);
-      },
-    });
-
     const campaign = useCampaign();
-    const clockSelect = ref('');
-    const isIndividual = ref(false);
-    const selectedTeammate = ref<ITeammate | null>(null);
-
-    watch(
-      () => props.modelValue,
-      () => {
-        if (!isIndividual.value) {
-          selectedTeammate.value = null;
-        }
-      },
-      { deep: true }
-    );
 
     const clocks = computed(() => {
-      if (isIndividual.value && selectedTeammate.value) {
-        return selectedTeammate.value.individualClocks;
+      if (props.isShared) {
+        return campaign.data.team.sharedClocks;
+      } else {
+        const teammate = campaign.data.team.teammates.find((t) => t.name === props.ownerName);
+        return teammate ? teammate.individualClocks : [];
       }
-      return campaign.data.team.sharedClocks;
     });
 
     const clockIndices = computed(() => {
       const out: number[] = [];
-      if (!idList.value) return out;
-      idList.value.forEach((id) => {
+      if (!props.modelValue) return out;
+      props.modelValue.forEach((id) => {
         clocks.value.forEach((c, i) => {
           if (c.id === id) {
             out.push(i);
@@ -106,35 +94,29 @@ export default defineComponent({
       return out;
     });
 
-    const clockOpts = computed(() => {
-      const out: ISelectOpt[] = [{ label: 'New', value: 'new' }];
-      clocks.value.forEach((c) => {
-        out.push({
-          label: c.name,
-          value: c.id,
-        });
-      });
-      return out;
-    });
+    watch(
+      () => props.modelValue,
+      (newValue) => {
+        emit('update:modelValue', newValue);
+      },
+      { deep: true }
+    );
 
-    const addClock = (id: string) => {
-      if (id === 'new') {
-        const c = NewClock();
-        clocks.value.unshift(c);
-        idList.value.unshift(c.id);
-        return;
-      }
-      idList.value.unshift(id);
+    const addClock = () => {
+      const c = NewClock();
+      clocks.value.unshift(c);
+      emit('update:modelValue', [c.id, ...props.modelValue]);
     };
 
     const unlinkClock = (id: string) => {
-      idList.value.forEach((c, i) => {
-        if (c === id) idList.value.splice(i, 1);
-      });
+      const newValue = props.modelValue.filter((c) => c !== id);
+      emit('update:modelValue', newValue);
     };
 
     const removeClock = (index: number) => {
+      const clockId = clocks.value[index].id;
       clocks.value.splice(index, 1);
+      unlinkClock(clockId);
     };
 
     const rollAllClocks = () => {
@@ -145,17 +127,8 @@ export default defineComponent({
       });
     };
 
-    const teammateOptions = computed(() => campaign.data.team.teammates.map((t) => ({ label: t.name, value: t })));
-
-    const updateClockType = (value: boolean) => {
-      isIndividual.value = value;
-      if (!value) {
-        selectedTeammate.value = null;
-      }
-    };
-
-    const updateTeammate = (value: ITeammate) => {
-      selectedTeammate.value = value;
+    const updateClock = (index: number, newClock: IClock) => {
+      clocks.value[index] = newClock;
     };
 
     return {
@@ -163,16 +136,10 @@ export default defineComponent({
       unlinkClock,
       removeClock,
       clockIndices,
-      clockOpts,
-      clockSelect,
       rollAllClocks,
       campaign,
-      isIndividual,
-      selectedTeammate,
-      teammateOptions,
-      updateClockType,
-      updateTeammate,
       clocks,
+      updateClock,
     };
   },
 });

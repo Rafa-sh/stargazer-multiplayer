@@ -1,12 +1,24 @@
 <template>
   <div class="q-pa-sm card-bg rounded-borders">
     <div class="row q-gutter-sm" v-if="showName">
+      <q-btn
+        class="col-shrink bold-text"
+        :label="data.isVow ? 'Vow' : 'Progress'"
+        flat
+        dense
+        @click="toggleTrackType"
+      />
       <i-input class="col-grow" v-model="data.name" @update:modelValue="updateValue" autogrow />
       <slot name="action" class="col-shrink" />
     </div>
 
-    <div class="row q-gutter-sm">
-      <q-toggle v-model="localIsIndividual" label="Individual Vow" @update:modelValue="updateVowType" />
+    <div class="row q-gutter-sm" v-if="showIndividualToggle || localIsIndividual">
+      <q-toggle
+        v-if="showIndividualToggle"
+        v-model="localIsIndividual"
+        label="Individual Vow"
+        @update:modelValue="updateVowType"
+      />
       <q-select
         v-if="localIsIndividual"
         v-model="selectedTeammate"
@@ -68,7 +80,7 @@
     </div>
 
     <div v-if="showClocks">
-      <clocks v-model="data.clocks" />
+      <clocks v-model="data.clocks" :owner-name="localIsIndividual ? selectedTeammate.name : 'Team'" />
     </div>
   </div>
 </template>
@@ -110,15 +122,26 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    showIndividualToggle: {
+      type: Boolean,
+      default: true,
+    },
+    ownerName: {
+      type: String,
+      default: 'Team',
+    },
   },
   emits: ['update:modelValue', 'update:isIndividual'],
   setup(props, ctx) {
-    const data = ref(props.modelValue);
+    const data = ref({
+      ...props.modelValue,
+      isVow: props.modelValue.isVow ?? true, // Default to true if not set
+    });
     const localIsIndividual = ref(props.isIndividual);
 
     watch(
       () => props.modelValue,
-      () => (data.value = props.modelValue),
+      () => (data.value = { ...props.modelValue, isVow: props.modelValue.isVow ?? true }),
       { deep: true }
     );
 
@@ -139,6 +162,11 @@ export default defineComponent({
 
     const updateTeammate = (value: ITeammate) => {
       selectedTeammate.value = value;
+    };
+
+    const toggleTrackType = () => {
+      data.value.isVow = !data.value.isVow;
+      updateValue();
     };
 
     // Set difficulty externally using a computed property
@@ -261,7 +289,14 @@ export default defineComponent({
       teammateOptions,
       updateVowType,
       updateTeammate,
+      toggleTrackType,
     };
   },
 });
 </script>
+
+<style scoped>
+.bold-text {
+  font-weight: bold;
+}
+</style>
