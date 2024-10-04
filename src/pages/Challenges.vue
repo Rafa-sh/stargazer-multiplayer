@@ -16,12 +16,7 @@
       </template>
     </progress-track>
 
-    <q-separator />
-
     <!-- Shared Clocks -->
-    <div class="text-h4 sf-header text-center q-mt-md q-mb-sm" id="shared-clocks">
-      Shared Clocks<q-btn icon="add_circle" flat dense @click="addSharedClock" />
-    </div>
     <clocks class="q-mb-sm" v-model="sharedClockIds" :owner-name="'Shared'" />
 
     <q-separator />
@@ -36,7 +31,8 @@
         expand-icon-class="q-mr-md"
       >
         <template v-slot:header>
-          <div class="text-h4 sf-header text-center q-mt-md q-mb-sm">
+          <div class="text-h4 sf-header q-mt-md q-mb-sm col-grow">
+            <q-img v-if="teammate.image" :src="teammate.image" class="character-icon q-mr-sm" />
             {{ teammate.callsign || teammate.name }} Challenges
             <q-btn icon="add_circle" flat dense @click="addIndividualVow(tIndex)" />
           </div>

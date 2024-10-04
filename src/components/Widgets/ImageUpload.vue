@@ -1,7 +1,7 @@
 <template>
   <div class="image-upload-container">
     <div v-if="!imageUrl" class="image-upload-box" @click="triggerUpload">
-      <q-icon name="add_photo_alternate" size="40px" color="rgba(0, 123, 255, 0.7)" />
+      <q-icon name="add_photo_alternate" size="40px" color="var(--q-primary)" />
       <div class="upload-text">Upload Image</div>
       <input type="file" ref="fileInput" accept="image/*" @change="onFileSelected" class="hidden-file-input" />
     </div>
@@ -71,33 +71,33 @@ export default defineComponent({
 }
 
 .image-upload-box {
-  width: 150px;
-  height: 150px;
-  border: 2px dashed var(--q-primary); /* Blueish-transparent border */
+  width: 125px;
+  height: 125px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: rgba(255, 255, 255, 0.5); /* Slightly transparent background */
+  background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .image-upload-box:hover {
-  background-color: rgba(255, 255, 255, 0.7); /* Slightly more opaque on hover */
+  background-color: rgba(255, 255, 255, 0.7);
 }
 
 .upload-text {
   margin-top: 8px;
-  color: var(--q-primary); /* Blueish-transparent text */
+  color: #fff;
   font-size: 14px;
   text-align: center;
 }
 
 .image-display-container {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 125px;
+  height: 125px;
 }
 
 .character-image {
@@ -110,9 +110,9 @@ export default defineComponent({
   position: absolute;
   bottom: 4px;
   right: 4px;
-  background-color: var(--q-primary); /* Semi-transparent blueish background */
-  color: white; /* White icon color */
-  border-radius: 8px; /* More square-ish */
+  background-color: var(--q-primary);
+  color: white;
+  border-radius: 8px;
   width: 32px;
   height: 32px;
   display: flex;

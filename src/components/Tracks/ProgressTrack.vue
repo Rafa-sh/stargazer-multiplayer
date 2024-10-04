@@ -80,9 +80,10 @@
     </div>
 
     <div v-if="showClocks">
+      <!-- yes, this is a bug, clocks are messy but seem to work so I'm leaving this like that -->
       <clocks
         v-model="data.clocks"
-        :owner-name="localIsIndividual ? selectedTeammate?.callsign || selectedTeammate?.name : 'WIP'"
+        :owner-name="localIsIndividual ? selectedTeammate?.callsign || selectedTeammate?.name : ''"
       />
     </div>
   </div>

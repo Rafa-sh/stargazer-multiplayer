@@ -9,6 +9,7 @@
   >
     <q-card class="column card-bg">
       <q-card-section class="row items-center justify-between q-pa-sm text-h6">
+        <q-img v-if="selectedTeammate.image" :src="selectedTeammate.image" class="character-icon q-mr-sm" />
         <q-select
           class="col"
           label="Teammate"
@@ -191,7 +192,7 @@ export default defineComponent({
     // selectedTeammate by default is the first teammate of the team of the campaign, which will always exist
     const selectedTeammate = ref<ITeammate>(campaign.data.team.teammates[0]);
 
-    const teammateOptions = computed(() => campaign.data.team.teammates.map((t) => ({ label: t.name, value: t })));
+    const teammateOptions = computed(() => campaign.data.team.teammates.map((t) => ({ label: t.callsign, value: t })));
 
     const updateTeammate = (value: ITeammate) => {
       selectedTeammate.value = value;

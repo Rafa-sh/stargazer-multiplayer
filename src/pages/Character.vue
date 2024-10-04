@@ -22,27 +22,27 @@
       dense
     >
       <template v-slot:header>
-        <div class="row full-width items-center justify-between">
+        <div class="row full-width items-center justify-between no-wrap">
           <!-- Group 1: Character Image and Callsign/Name -->
           <div class="col-auto group q-pa-md">
-            <div class="row items-center">
-              <q-img v-if="teammate.image" :src="teammate.image" class="character-icon" />
+            <div class="row items-center no-wrap">
+              <q-img v-if="teammate.image" :src="teammate.image" class="character-icon q-mr-sm" />
               <div class="col text-left">{{ teammate.callsign || teammate.name }}</div>
             </div>
           </div>
 
           <!-- Centered Groups 2 and 3 with Separation (hidden on small screens) -->
-          <div v-if="$q.screen.gt.xs" class="row items-center justify-center q-pa-md">
+          <div v-if="$q.screen.gt.xs" class="row items-center justify-center q-pa-md no-wrap">
             <!-- Group 2: Momentum, Health, Spirit, Supply -->
             <div class="col-auto group q-pa-md">
-              <div class="row items-center justify-center">
-                <div class="col text-center q-mr-md">
+              <div class="row items-center justify-center no-wrap">
+                <div class="col text-center q-mr-sm">
                   <q-icon name="mdi-fire" /> {{ teammate.tracks.momentum.value }}
                 </div>
-                <div class="col text-center q-mr-md">
+                <div class="col text-center q-mr-sm">
                   <q-icon name="mdi-heart" /> {{ teammate.tracks.health.value }}
                 </div>
-                <div class="col text-center q-mr-md">
+                <div class="col text-center q-mr-sm">
                   <q-icon name="mdi-emoticon-happy" /> {{ teammate.tracks.spirit.value }}
                 </div>
                 <div class="col text-center">
@@ -52,15 +52,15 @@
             </div>
 
             <!-- Separation -->
-            <div class="q-mx-md"></div>
+            <div class="q-mx-sm"></div>
 
             <!-- Group 3: Stats -->
             <div class="col-auto group q-pa-md">
-              <div class="row items-center justify-center">
-                <div class="col text-center q-mr-md"><q-icon name="mdi-sword" /> {{ teammate.stats.edge }}</div>
-                <div class="col text-center q-mr-md"><q-icon name="mdi-heart-pulse" /> {{ teammate.stats.heart }}</div>
-                <div class="col text-center q-mr-md"><q-icon name="mdi-shield" /> {{ teammate.stats.iron }}</div>
-                <div class="col text-center q-mr-md"><q-icon name="mdi-eye" /> {{ teammate.stats.shadow }}</div>
+              <div class="row items-center justify-center no-wrap">
+                <div class="col text-center q-mr-sm"><q-icon name="mdi-sword" /> {{ teammate.stats.edge }}</div>
+                <div class="col text-center q-mr-sm"><q-icon name="mdi-heart-pulse" /> {{ teammate.stats.heart }}</div>
+                <div class="col text-center q-mr-sm"><q-icon name="mdi-shield" /> {{ teammate.stats.iron }}</div>
+                <div class="col text-center q-mr-sm"><q-icon name="mdi-eye" /> {{ teammate.stats.shadow }}</div>
                 <div class="col text-center"><q-icon name="mdi-brain" /> {{ teammate.stats.wits }}</div>
               </div>
             </div>
@@ -68,7 +68,7 @@
 
           <!-- Group 4: Delete Button -->
           <div class="col-auto group q-pa-md">
-            <div class="row items-center justify-end">
+            <div class="row items-center justify-end no-wrap">
               <q-btn
                 v-if="config.data.edit"
                 class="col-shrink"

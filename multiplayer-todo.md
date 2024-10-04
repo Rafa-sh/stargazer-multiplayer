@@ -5,13 +5,13 @@
 - [x] Fix clocks
 - [ ] Option to prefer Callsign or Name for character?
 - [x] fix all those warnings that slow down the app
-- [ ] do some proper testing
+- [x] do some proper testing
 - [ ] change in-app referecnes for "team" and "shared" to the actual team name
 - [ ] Add image support for a lot of stuff
   - [x] Teammate icon
     - [x] show on their info
-    - [ ] show on their challenges & clocks
-    - [ ] show on dice roller
+    - [x] show on their challenges & clocks
+    - [x] show on dice roller
 - [ ] In-App chat for campaigns / "Real" multiplayer support?
 - [ ] In-App tutorial on first start? Also add a FAQ
 - [ ] Custom moves support
