@@ -1,20 +1,17 @@
-# Stargazer (stargazer)
+# Stargazer Multiplayer
 
-An app for journaling solo Ironsworn: Starforged campaigns
+Hey I made a fork of the original Stargazer to add these features:
 
-# Contribution Guidelines
+- multicharacter/multiplayer support
+- image for character support
+- that's it
 
-## No breaking changes
+I'm not gonna lie, this is hacky and there are some bugs, but it's good enough for me, hopefully it might be good enough for you
 
-Modifications to the data model at this point must be limited to optional props which are verified where used to prevent runtime errors.
+## Some bugs
 
-## Write clear and readable code
-
-Please ensure all code submissions are designed to be as readable as possible and include comments where appropriate to ensure the intent of your code is obvious.
-
-## Please don't try to implement multiplayer
-
-Stargazer is designed as a solo-play app and Oracle dashboard. Pull requests attempting to add multi-player/multi-character will not be merged.
+- clocks probably don't work as intended internally. Nothing that seems to impact the end-user experience though
+- I'm pretty sure there are some reactivy errors, this is the first time I use Vue. nothing that can't be fixed reloading the page
 
 ## Install the dependencies
 
