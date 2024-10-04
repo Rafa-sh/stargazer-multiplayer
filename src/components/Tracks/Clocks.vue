@@ -55,9 +55,7 @@ export default defineComponent({
     },
     modelValue: {
       type: Array as PropType<string[]>,
-      default: () => {
-        return [];
-      },
+      default: () => [],
     },
     ownerName: {
       type: String,
@@ -97,14 +95,16 @@ export default defineComponent({
     watch(
       () => props.modelValue,
       (newValue) => {
-        emit('update:modelValue', newValue);
+        console.log('props.modelValue changed:', newValue);
       },
       { deep: true }
     );
 
     const addClock = () => {
+      console.log('addClock called');
       const c = NewClock();
       clocks.value.unshift(c);
+      console.log('New clock added:', c);
       emit('update:modelValue', [c.id, ...props.modelValue]);
     };
 
@@ -114,9 +114,14 @@ export default defineComponent({
     };
 
     const removeClock = (index: number) => {
+      if (index < 0 || index >= clocks.value.length) {
+        console.error(`Invalid index: ${index}`);
+        return;
+      }
       const clockId = clocks.value[index].id;
       clocks.value.splice(index, 1);
       unlinkClock(clockId);
+      console.log(`Clock removed: ${clockId}`);
     };
 
     const rollAllClocks = () => {
@@ -128,6 +133,10 @@ export default defineComponent({
     };
 
     const updateClock = (index: number, newClock: IClock) => {
+      if (index < 0 || index >= clocks.value.length) {
+        console.error(`Invalid index: ${index}`);
+        return;
+      }
       clocks.value[index] = newClock;
     };
 
@@ -144,3 +153,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.teko {
+  font-family: 'Teko', sans-serif !important;
+}
+</style>

@@ -80,7 +80,10 @@
     </div>
 
     <div v-if="showClocks">
-      <clocks v-model="data.clocks" :owner-name="localIsIndividual ? selectedTeammate.name : 'Team'" />
+      <clocks
+        v-model="data.clocks"
+        :owner-name="localIsIndividual ? selectedTeammate?.callsign || selectedTeammate?.name : 'WIP'"
+      />
     </div>
   </div>
 </template>

@@ -214,6 +214,7 @@ export interface ITeammate {
   assets: ISGAsset[];
   individualVows: IProgressTrack[];
   individualClocks: IClock[];
+  image?: string;
 }
 
 // Journal

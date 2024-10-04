@@ -22,12 +22,7 @@
     <div class="text-h4 sf-header text-center q-mt-md q-mb-sm" id="shared-clocks">
       Shared Clocks<q-btn icon="add_circle" flat dense @click="addSharedClock" />
     </div>
-    <clocks
-      class="q-mb-sm"
-      :is-shared="true"
-      :model-value="sharedClockIds"
-      @update:model-value="updateSharedClockIds"
-    />
+    <clocks class="q-mb-sm" v-model="sharedClockIds" :owner-name="'Shared'" />
 
     <q-separator />
 
@@ -57,18 +52,6 @@
             <q-btn class="col-shrink" icon="delete" flat dense @click="removeIndividualVow(tIndex, vIndex)" />
           </template>
         </progress-track>
-
-        <!-- Individual Clocks -->
-        <div class="text-h4 sf-header text-center q-mt-md q-mb-sm">
-          {{ teammate.callsign || teammate.name }} Clocks
-          <q-btn icon="add_circle" flat dense @click="addIndividualClock(tIndex)" />
-        </div>
-        <clocks
-          class="q-mb-sm"
-          :owner-name="teammate.name"
-          :model-value="teammateClockIds[tIndex]"
-          @update:model-value="updateTeammateClockIds(tIndex, $event)"
-        />
       </q-expansion-item>
     </div>
   </q-page>
@@ -114,9 +97,6 @@ export default defineComponent({
       campaign.data.team.sharedClocks.splice(index, 1);
       sharedClockIds.value = sharedClockIds.value.filter((id) => id !== clockId);
     };
-    const updateSharedClockIds = (newIds: string[]) => {
-      sharedClockIds.value = newIds;
-    };
 
     // Individual Clocks
     const teammateClockIds = computed(() => {
@@ -132,9 +112,6 @@ export default defineComponent({
       campaign.data.team.teammates[teammateIndex].individualClocks.splice(clockIndex, 1);
       teammateClockIds.value[teammateIndex] = teammateClockIds.value[teammateIndex].filter((id) => id !== clockId);
     };
-    const updateTeammateClockIds = (teammateIndex: number, newIds: string[]) => {
-      teammateClockIds.value[teammateIndex] = newIds;
-    };
 
     return {
       campaign,
@@ -146,11 +123,9 @@ export default defineComponent({
       addSharedClock,
       removeSharedClock,
       sharedClockIds,
-      updateSharedClockIds,
       addIndividualClock,
       removeIndividualClock,
       teammateClockIds,
-      updateTeammateClockIds,
     };
   },
 });

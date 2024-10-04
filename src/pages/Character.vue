@@ -23,9 +23,10 @@
     >
       <template v-slot:header>
         <div class="row full-width items-center justify-between">
-          <!-- Group 1: Callsign/Name -->
+          <!-- Group 1: Character Image and Callsign/Name -->
           <div class="col-auto group q-pa-md">
             <div class="row items-center">
+              <q-img v-if="teammate.image" :src="teammate.image" class="character-icon" />
               <div class="col text-left">{{ teammate.callsign || teammate.name }}</div>
             </div>
           </div>
@@ -84,7 +85,10 @@
       </template>
 
       <!-- Expanded Content -->
-      <div class="text-h4 sf-header text-center q-mt-md q-mb-sm">{{ teammate.name }}</div>
+      <div class="row full-width items-center q-mt-md q-mb-sm">
+        <image-upload v-model="teammate.image" />
+        <div class="text-h4 sf-header text-center col">{{ teammate.name }}</div>
+      </div>
 
       <!-- Name, pronouns, callsign etc -->
       <div class="row full-width items-center">
@@ -304,6 +308,7 @@ import Assets from 'src/components/Assets/Assets.vue';
 import ResourceTrack from 'src/components/Tracks/ResourceTrack.vue';
 import LegacyTrack from 'src/components/Tracks/LegacyTrack.vue';
 import IInput from 'src/components/Widgets/IInput.vue';
+import ImageUpload from 'src/components/Widgets/ImageUpload.vue';
 
 export default defineComponent({
   name: 'Team',
@@ -314,6 +319,7 @@ export default defineComponent({
     Asset,
     Assets,
     IInput,
+    ImageUpload,
   },
   setup() {
     const campaign = useCampaign();
@@ -385,3 +391,12 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.character-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 8px;
+  margin-right: 8px;
+}
+</style>

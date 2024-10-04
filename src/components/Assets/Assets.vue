@@ -101,7 +101,7 @@
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
 
-import { ISGAsset, ITeam, ITeammate } from 'src/components/models';
+import { ISGAsset, ITeammate } from 'src/components/models';
 
 import { useConfig } from 'src/store/config';
 import { useAssets } from 'src/store/assets';
