@@ -89,6 +89,7 @@
       <clocks
         v-model="data.clocks"
         :owner-name="localIsIndividual ? selectedTeammate?.callsign || selectedTeammate?.name : ''"
+        :is-shared="!localIsIndividual"
       />
     </div>
   </div>
