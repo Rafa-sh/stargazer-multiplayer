@@ -17,7 +17,12 @@
     </progress-track>
 
     <!-- Shared Clocks -->
-    <clocks class="q-mb-sm" v-model="sharedClockIds" :owner-name="'Shared'" />
+    <clocks 
+      class="q-mb-sm" 
+      v-model="sharedClockIds" 
+      :owner-name="'Shared'"
+      :is-shared="true"
+    />
 
     <q-separator />
 
@@ -82,16 +87,19 @@ export default defineComponent({
     };
 
     // Shared Clocks
-    const sharedClockIds = ref(campaign.data.team.sharedClocks.map((clock) => clock.id));
+   const sharedClockIds = computed({
+      get: () => campaign.data.team.sharedClocks.map(clock => clock.id),
+      set: (val) => {
+        // Lógica opcional si necesitas actualizar algo al cambiar los IDs
+      }
+    });
     const addSharedClock = () => {
       const newClock = NewClock();
       campaign.data.team.sharedClocks.unshift(newClock);
-      sharedClockIds.value.unshift(newClock.id);
     };
     const removeSharedClock = (index: number) => {
       const clockId = campaign.data.team.sharedClocks[index].id;
       campaign.data.team.sharedClocks.splice(index, 1);
-      sharedClockIds.value = sharedClockIds.value.filter((id) => id !== clockId);
     };
 
     // Individual Clocks
