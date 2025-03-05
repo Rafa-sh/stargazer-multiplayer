@@ -76,7 +76,12 @@
     </div>
 
     <div v-if="showNotes" class="q-mt-sm">
-      <i-input v-model="data.notes" autogrow label="Notes" />
+      <i-input 
+        v-model="data.notes" 
+        autogrow 
+        label="Notes" 
+        @update:modelValue="updateValue"
+      />
     </div>
 
     <div v-if="showClocks">
